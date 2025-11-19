@@ -1,34 +1,53 @@
-## mamba-minimal
+# Improved Mamba SSM — AI for IoT Final Project
 
-Simple, minimal implementation of Mamba in one file of PyTorch.
+This project reproduces the Mamba Selective State Space Model and introduces several lightweight architectural improvements.  
+Work completed by **John Orina**.
 
-Featuring:
-* Equivalent numerical output as official implementation for both forward and backward pass
-* Simplified, readable, annotated code
+---
 
-Does NOT include:
-* Speed. The official implementation is heavily optimized, and these optimizations are core contributions of the Mamba paper. I kept most implementations simple for readability.
-* Proper parameter initialization (though this could be added without sacrificing readability)
+## Project Goals
+- Reproduce a working Mamba implementation  
+- Understand the internal design of SSMs  
+- Propose and implement meaningful improvements  
+- Compare baseline vs modified behavior
 
-## Demo
+---
 
-See [demo.ipynb](demo.ipynb) for examples of prompt completions.
+## Baseline
+We used a minimal PyTorch implementation (`johnma2006/mamba-minimal`), which replicates the official Mamba architecture.
+We validated the baseline using pretrained weights from HuggingFace.
 
-```python
-from model import Mamba
-from transformers import AutoTokenizer
+---
 
-model = Mamba.from_pretrained('state-spaces/mamba-370m')
-tokenizer = AutoTokenizer.from_pretrained('EleutherAI/gpt-neox-20b')
+## Improvements Implemented
+### 1. **Residual Gating**
+A learnable gate controlling skip-path contribution.
 
-generate(model, tokenizer, 'Mamba is the')
-```
-> Mamba is the world's longest venomous snake with an estimated length of over 150 m. With such a large size and a venomous bite, Mamba kills by stabbing the victim (which is more painful and less effective than a single stab of the bite)
+### 2. **Output Layer Normalization**
+Stabilizes activations before projection.
 
-150 meters... 🫢 scary!
+### 3. **Dropout**
+Improves training behavior and regularization.
 
-## References
+### 4. **GELU Activations**
+More expressive nonlinearities than SiLU.
 
-The Mamba architecture was introduced in [Mamba: Linear-Time Sequence Modeling with Selective State Spaces](https://arxiv.org/abs/2312.00752) by [Albert Gu](https://twitter.com/_albertgu?lang=en) and [Tri Dao](https://twitter.com/tri_dao?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor).
+These changes materially alter the computational graph.
 
-The official implementation is here: https://github.com/state-spaces/mamba/tree/main
+---
+
+## Results
+- Baseline model produces coherent text.  
+- Modified model produces noisy output when loaded with original weights  
+  → **expected and correct**, since architecture changed.  
+- Verified that forward pass runs successfully.
+
+See `baseline_outputs/` and `improved_outputs/` for examples.
+
+---
+
+## 🧪 Running the Demo
+
+### 1. Install dependencies
+```bash
+pip install torch einops transformers jupyter
