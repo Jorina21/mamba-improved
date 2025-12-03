@@ -48,3 +48,8 @@ Models behave differently when architecture changes.
 Reproducing results validates research claims.
 Improving a model requires understanding its components.
 Modified Mamba architectures need retraining to function correctly.
+
+
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+:!?.,"'()-\_n
