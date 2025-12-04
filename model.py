@@ -60,7 +60,11 @@ class Mamba(nn.Module):
         self.args = args
         
         self.embedding = nn.Embedding(args.vocab_size, args.d_model)
-        self.layers = nn.ModuleList([ResidualBlock(args) for _ in range(args.n_layer)])
+        self.layers = nn.ModuleList([
+        ResidualBlock(args, use_attention=(i % 3 == 2)) 
+        for i in range(args.n_layer)
+        ])
+
         self.norm_f = RMSNorm(args.d_model)
 
         self.lm_head = nn.Linear(args.d_model, args.vocab_size, bias=False)
@@ -141,37 +145,34 @@ class Mamba(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, args: ModelArgs):
-        """Simple block wrapping Mamba block with normalization and residual connection."""
+    def __init__(self, args: ModelArgs, use_attention=False):
         super().__init__()
         self.args = args
+
         self.mixer = MambaBlock(args)
         self.norm = RMSNorm(args.d_model)
-        
+
+        # ⭐ Lightweight Attention (Optional)
+        self.use_attention = use_attention
+        if use_attention:
+            self.attn = nn.MultiheadAttention(
+                embed_dim=args.d_model,
+                num_heads=2,
+                batch_first=True,
+                dropout=0.1,
+            )
 
     def forward(self, x):
-        """
-        Args:
-            x: shape (b, l, d)    (See Glossary at top for definitions of b, l, d_in, n...)
-    
-        Returns:
-            output: shape (b, l, d)
+        # Standard Mamba block
+        x = self.mixer(self.norm(x)) + x
 
-        Official Implementation:
-            Block.forward(), https://github.com/state-spaces/mamba/blob/main/mamba_ssm/modules/mamba_simple.py#L297
-            
-            Note: the official repo chains residual blocks that look like
-                [Add -> Norm -> Mamba] -> [Add -> Norm -> Mamba] -> [Add -> Norm -> Mamba] -> ...
-            where the first Add is a no-op. This is purely for performance reasons as this
-            allows them to fuse the Add->Norm.
+        # Optional attention block
+        if self.use_attention:
+            attn_out, _ = self.attn(x, x, x)
+            x = x + 0.1 * attn_out     # small residual weight (stable)
 
-            We instead implement our blocks as the more familiar, simpler, and numerically equivalent
-                [Norm -> Mamba -> Add] -> [Norm -> Mamba -> Add] -> [Norm -> Mamba -> Add] -> ....
-            
-        """
-        output = self.mixer(self.norm(x)) + x
+        return x
 
-        return output
             
 
 class MambaBlock(nn.Module):
