@@ -84,7 +84,7 @@ These limitations are intentional and allow controlled experimentation on modest
 ## Running Training
 ```bash
 python train.py --dataset data/TinyStoriesV2-GPT4-train.txt
-
+```
 ---
 
 ## Demo and Presentation
