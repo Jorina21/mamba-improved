@@ -86,3 +86,9 @@ These limitations are intentional and allow controlled experimentation on modest
 python train.py --dataset data/TinyStoriesV2-GPT4-train.txt
 
 ---
+
+## Demo and Presentation
+A recorded walkthrough of the project, including model architecture, training setup,
+and generated text examples, is available at the link below:
+
+🔗 https://purdue0-my.sharepoint.com/:v:/g/personal/aleistne_purdue_edu/IQAnGuzL40uQQYGpBzbM5ydVAdf_9gmGZRQArW7JLsh-g88
